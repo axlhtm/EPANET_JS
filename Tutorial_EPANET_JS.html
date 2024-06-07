@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Epanet.js Example</title>
+    <script src="https://unpkg.com/epanet-js"></script>
+</head>
+<body>
+    <h1>Epanet.js Simulation Results</h1>
+    <div id="results"></div>
+
+    <script>
+        // Import necessary classes
+        import { Project, Workspace } from "epanet-js";
+
+        // Function to handle simulation and display results
+        async function runSimulation(filename) {
+            const ws = new Workspace(); // Create a workspace
+
+            try {
+                // Read the inp file content
+                const inpData = await fetch(filename);
+                const text = await inpData.text();
+
+                // Create a new project and open the inp file
+                const model = new Project(ws);
+                await model.open(filename, "", ""); // Empty report and output files
+
+                // Run hydraulic simulation
+                await model.solveH();
+
+                // Get results (replace with desired properties)
+                const node1Pressure = await model.getNodeHydraulicHead(1);
+                const link1Flow = await model.getLinkActualFlow(1);
+
+                // Display results on webpage
+                const resultsDiv = document.getElementById("results");
+                resultsDiv.innerHTML = `
+                    <p>Node 1 Pressure: ${node1Pressure.toFixed(2)} psi</p>
+                    <p>Link 1 Flow: ${link1Flow.toFixed(2)} gpm</p>
+                `;
+
+                // Close the project (optional)
+                await model.close();
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        // Replace 'your_file.inp' with the actual path to your inp file
+        runSimulation('C:/Users/axelh/OneDrive/Documents/Hydroinformatics/EPANET_JS/Net1.inp');
+    </script>
+</body>
+</html>
